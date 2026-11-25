@@ -1,0 +1,27 @@
+# Python
+__pycache__/
+*.pyc
+
+# Virtual environment
+.venv/
+venv/
+
+# Local employee and task data
+storage/*
+!storage/.gitkeep
+
+# Password setup
+setup_team.py
+
+# Backup files
+*.backup*
+*.bak
+
+# Local settings
+.env
+.env.*
+.vscode/
+
+# Local databases
+*.db
+*.sqlite3

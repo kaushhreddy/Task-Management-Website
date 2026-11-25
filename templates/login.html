@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1">
+
+    <title>Vaayum Space | Login</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='style.css') }}">
+
+    <script src="{{ url_for('static', filename='app.js') }}"
+            defer></script>
+</head>
+
+<body class="login-body">
+
+<main class="login-shell">
+
+    <!-- LEFT SIDE -->
+
+    <section class="login-showcase">
+
+        <img
+            class="login-logo"
+            src="{{ url_for('static', filename='vaayum_logo_white.png') }}"
+            alt="Vaayum Technologies"
+        >
+
+        <div class="login-intro">
+
+            <span class="eyebrow">
+                VAAYUM SPACE
+            </span>
+
+            <h1>
+                Workspace<br>
+                <span>Management</span>
+            </h1>
+
+            <p>
+                Manage projects, coordinate teams and
+                keep track of your work in one place.
+            </p>
+
+        </div>
+
+        <footer class="login-footer">
+
+            <span>VAAYUM TECHNOLOGIES</span>
+
+            <span>© 2026</span>
+
+        </footer>
+
+    </section>
+
+
+    <!-- RIGHT SIDE -->
+
+    <section class="login-access">
+
+        <div class="login-form-box">
+
+            <span class="eyebrow">
+                ACCOUNT ACCESS
+            </span>
+
+            <h2>Welcome back</h2>
+
+            <p class="muted">
+                Sign in to continue to your workspace.
+            </p>
+
+
+            <!-- LOGIN MESSAGES -->
+
+            {% for category, message in get_flashed_messages(with_categories=true) %}
+
+            <div class="flash {{ category }}" role="alert">
+                {{ message }}
+            </div>
+
+            {% endfor %}
+
+
+            <!-- LOGIN FORM -->
+
+            <form method="POST"
+                  action="{{ url_for('login') }}">
+
+                <!-- ROLE SELECTION -->
+
+                <div class="role-toggle"
+                     aria-label="Choose account type">
+
+                    <label>
+
+                        <input
+                            type="radio"
+                            name="role"
+                            value="Owner"
+                            checked
+                        >
+
+                        <span>Owner / Operator</span>
+
+                    </label>
+
+                    <label>
+
+                        <input
+                            type="radio"
+                            name="role"
+                            value="Employee"
+                        >
+
+                        <span>Employee</span>
+
+                    </label>
+
+                </div>
+
+
+                <!-- EMAIL -->
+
+                <label for="email">
+                    Email address
+                </label>
+
+                <input
+                    class="input"
+                    id="email"
+                    name="email"
+                    type="email"
+                    placeholder="you@vaayum.com"
+                    autocomplete="username"
+                    required
+                >
+
+
+                <!-- PASSWORD -->
+
+                <label for="password">
+                    Password
+                </label>
+
+                <div class="password-wrap">
+
+                    <input
+                        class="input"
+                        id="password"
+                        name="password"
+                        type="password"
+                        placeholder="Enter your password"
+                        autocomplete="current-password"
+                        required
+                    >
+
+                    <button
+                        type="button"
+                        class="show-password"
+                        data-toggle-password="password">
+
+                        Show
+
+                    </button>
+
+                </div>
+
+
+                <p class="login-note">
+                    Use your registered work email and password.
+                </p>
+
+
+                <!-- SIGN IN -->
+
+                <button
+                    class="btn primary signin"
+                    type="submit">
+
+                    Sign in <span>→</span>
+
+                </button>
+
+            </form>
+
+            <p class="login-help">
+                Need account access? Contact the workspace owner.
+            </p>
+
+        </div>
+
+
+        <small class="login-security">
+            VAAYUM SPACE · WORKSPACE ACCESS
+        </small>
+
+    </section>
+
+</main>
+
+</body>
+</html>

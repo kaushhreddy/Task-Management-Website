@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>
+        {% block title %}Vaayum Space{% endblock %}
+    </title>
+
+    <!-- MAIN STYLESHEET -->
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='style.css') }}">
+
+    <!-- JAVASCRIPT -->
+    <script
+        src="{{ url_for('static', filename='app.js') }}"
+        defer>
+    </script>
+</head>
+
+<body>
+
+{% set dashboard = 'owner' if role == 'Owner' else 'employee' %}
+
+<div class="workspace">
+
+
+    <!-- =====================================
+         SIDEBAR
+    ====================================== -->
+
+    <aside class="sidebar" id="sidebar">
+
+
+        <!-- VAAYUM BRANDING -->
+
+        <a class="sidebar-brand"
+           href="{{ url_for(dashboard, section='overview') }}">
+
+            <img
+                src="{{ url_for('static', filename='vaayum_logo_white.png') }}"
+                alt="Vaayum Technologies">
+
+            <span>SPACE</span>
+
+        </a>
+
+
+        <!-- WORKSPACE LABEL -->
+
+        <p class="sidebar-caption">
+
+            {% if role == 'Owner' %}
+                OWNER WORKSPACE
+            {% else %}
+                EMPLOYEE WORKSPACE
+            {% endif %}
+
+        </p>
+
+
+        <!-- =====================================
+             NAVIGATION
+        ====================================== -->
+
+        <nav class="sidebar-nav"
+             aria-label="Main navigation">
+
+
+            <!-- OVERVIEW -->
+
+            <a
+                href="{{ url_for(dashboard, section='overview') }}"
+                class="{% if section == 'overview' %}active{% endif %}">
+
+                Overview
+
+            </a>
+
+
+            {% if role == 'Owner' %}
+
+
+                <!-- EMPLOYEES -->
+
+                <a
+                    href="{{ url_for('owner', section='employees') }}"
+                    class="{% if section == 'employees' %}active{% endif %}">
+
+                    Employees
+
+                </a>
+
+
+                <!-- TEAM TASKS -->
+
+                <a
+                    href="{{ url_for('owner', section='tasks') }}"
+                    class="{% if section == 'tasks' %}active{% endif %}">
+
+                    Team Tasks
+
+                </a>
+
+
+                <!-- REVIEWS -->
+
+                <a
+                    href="{{ url_for('owner', section='reviews') }}"
+                    class="{% if section == 'reviews' %}active{% endif %}">
+
+                    Reviews &amp; Blockers
+
+                </a>
+
+
+                <!-- SPRINTS -->
+
+                <a
+                    href="{{ url_for('owner', section='sprints') }}"
+                    class="{% if section == 'sprints' %}active{% endif %}">
+
+                    Sprints
+
+                </a>
+
+
+            {% else %}
+
+
+                <!-- MY TASKS -->
+
+                <a
+                    href="{{ url_for('employee', section='tasks') }}"
+                    class="{% if section == 'tasks' %}active{% endif %}">
+
+                    My Tasks
+
+                </a>
+
+
+                <!-- MY SPRINTS -->
+
+                <a
+                    href="{{ url_for('employee', section='sprints') }}"
+                    class="{% if section == 'sprints' %}active{% endif %}">
+
+                    My Sprints
+
+                </a>
+
+
+            {% endif %}
+
+
+            <!-- TASK HISTORY -->
+
+            <a
+                href="{{ url_for(dashboard, section='history') }}"
+                class="{% if section == 'history' %}active{% endif %}">
+
+                Task History
+
+            </a>
+
+
+        </nav>
+
+
+        <!-- =====================================
+             PROFILE AND LOGOUT
+        ====================================== -->
+
+        <div class="sidebar-bottom">
+
+
+            <!-- USER PROFILE -->
+
+            <div class="user-chip">
+
+
+                <!-- PROFILE INITIAL -->
+
+                <span class="avatar">
+
+                    {{ user['Name'][0]|upper }}
+
+                </span>
+
+
+                <!-- USER INFORMATION -->
+
+                <div>
+
+                    <strong title="{{ user['Name'] }}">
+
+                        {{ user['Name'] }}
+
+                    </strong>
+
+                    <small title="{{ user['Designation'] }}">
+
+                        {{ user['Designation'] }}
+
+                    </small>
+
+                </div>
+
+            </div>
+
+
+            <!-- LOGOUT -->
+
+            <a class="signout"
+               href="{{ url_for('logout') }}">
+
+                <span>Sign out</span>
+
+                <span>↗</span>
+
+            </a>
+
+
+        </div>
+
+    </aside>
+
+
+
+    <!-- =====================================
+         MAIN DASHBOARD
+    ====================================== -->
+
+    <div class="main-area">
+
+
+        <!-- TOP NAVIGATION BAR -->
+
+        <header class="topbar">
+
+
+            <!-- MOBILE MENU -->
+
+            <button
+                type="button"
+                class="menu-button"
+                id="menu-button"
+                aria-label="Open navigation">
+
+                ☰
+
+            </button>
+
+
+            <!-- BREADCRUMB -->
+
+            <div class="breadcrumb">
+
+                Workspace
+
+                <span>/</span>
+
+                <strong>
+
+                    {% if section == 'overview' %}
+                        Overview
+
+                    {% elif section == 'employees' %}
+                        Employees
+
+                    {% elif section == 'tasks' %}
+
+                        {% if role == 'Owner' %}
+                            Team Tasks
+                        {% else %}
+                            My Tasks
+                        {% endif %}
+
+                    {% elif section == 'reviews' %}
+                        Reviews &amp; Blockers
+
+                    {% elif section == 'sprints' %}
+                        Sprints
+
+                    {% elif section == 'history' %}
+                        Task History
+
+                    {% endif %}
+
+                </strong>
+
+            </div>
+
+
+            <!-- RIGHT SIDE -->
+
+            <div class="topbar-right">
+
+
+                <!-- CURRENT DATE -->
+
+                <span>
+
+                    {{ today }}
+
+                </span>
+
+
+                <!-- ACCOUNT ROLE -->
+
+                <span class="role-tag">
+
+                    {{ role }}
+
+                </span>
+
+            </div>
+
+
+        </header>
+
+
+
+        <!-- =====================================
+             PAGE CONTENT
+        ====================================== -->
+
+        <main class="content">
+
+
+            <!-- NOTIFICATIONS -->
+
+            {% for category, message in get_flashed_messages(with_categories=true) %}
+
+                <div class="flash {{ category }}"
+                     role="alert">
+
+                    {{ message }}
+
+                </div>
+
+            {% endfor %}
+
+
+
+            <!-- DASHBOARD CONTENT -->
+
+            {% block content %}
+
+            {% endblock %}
+
+
+        </main>
+
+    </div>
+
+</div>
+
+</body>
+</html>

@@ -1,0 +1,1078 @@
+{% extends 'base.html' %}
+
+{% block title %}
+Employee Dashboard | Vaayum Space
+{% endblock %}
+
+{% block content %}
+
+
+<!-- ==========================================
+     1. EMPLOYEE OVERVIEW
+========================================== -->
+
+{% if section == 'overview' %}
+
+<div class="page-heading">
+
+    <div>
+        <span class="eyebrow">EMPLOYEE WORKSPACE</span>
+
+        <h1>My workspace</h1>
+
+        <p>
+            Manage your assigned tasks, deadlines, and daily work.
+        </p>
+    </div>
+
+    <a class="btn primary"
+       href="{{ url_for('employee', section='tasks') }}">
+        Open task board →
+    </a>
+
+</div>
+
+
+<!-- OVERVIEW CARDS -->
+
+<div class="stats stats-four">
+
+    <article class="stat">
+        <span>Assigned tasks</span>
+
+        <strong>{{ tasks|length }}</strong>
+
+        <small>Total assigned work</small>
+    </article>
+
+    <article class="stat">
+        <span>In progress</span>
+
+        <strong>{{ counts['In Progress'] }}</strong>
+
+        <small>Currently working</small>
+    </article>
+
+    <article class="stat">
+        <span>Waiting for review</span>
+
+        <strong>{{ counts['Review'] }}</strong>
+
+        <small>Awaiting owner approval</small>
+    </article>
+
+    <article class="stat">
+        <span>Completed tasks</span>
+
+        <strong>{{ counts['Completed'] }}</strong>
+
+        <small>Approved by owner</small>
+    </article>
+
+</div>
+
+
+<!-- ACTIVE TASKS AND RECENT ACTIVITY -->
+
+<div class="two-col overview-panels">
+
+
+    <!-- TASKS NEEDING ATTENTION -->
+
+    <section class="panel">
+
+        <div class="panel-heading panel-heading-row">
+
+            <div>
+                <h2>My active tasks</h2>
+
+                <p>
+                    Tasks that need your attention.
+                </p>
+            </div>
+
+            <a class="text-link"
+               href="{{ url_for('employee', section='tasks') }}">
+                View all →
+            </a>
+
+        </div>
+
+
+        {% for task in tasks
+           if task['Status'] not in ['Review', 'Completed'] %}
+
+        {% if loop.index <= 6 %}
+
+        <div class="list-line">
+
+            <span class="small-icon
+                {% if task['Status'] == 'Blocker' %}
+                    warning-icon
+                {% endif %}">
+
+                {% if task['Status'] == 'Blocker' %}
+                    !
+                {% else %}
+                    ✓
+                {% endif %}
+
+            </span>
+
+            <div>
+
+                <strong>
+                    {{ task['Title'] }}
+                </strong>
+
+                <small>
+                    Due {{ task['Deadline'] }}
+                    ·
+                    {{ task['Status'] }}
+                </small>
+
+            </div>
+
+            <a class="text-link"
+               href="{{ url_for('employee', section='history', task_id=task['ID']) }}">
+                History →
+            </a>
+
+        </div>
+
+        {% endif %}
+
+        {% else %}
+
+        <p class="empty">
+            No active tasks at the moment.
+        </p>
+
+        {% endfor %}
+
+    </section>
+
+
+
+    <!-- RECENT ACTIVITY -->
+
+    <section class="panel">
+
+        <div class="panel-heading panel-heading-row">
+
+            <div>
+                <h2>Recent activity</h2>
+
+                <p>
+                    Latest updates on your assigned tasks.
+                </p>
+            </div>
+
+            <a class="text-link"
+               href="{{ url_for('employee', section='history') }}">
+                Full history →
+            </a>
+
+        </div>
+
+
+        {% for event in latest_activity %}
+
+        <a class="activity-preview"
+           href="{{ url_for('employee', section='history', task_id=event['Task ID']) }}">
+
+            <span class="preview-dot"></span>
+
+            <span>
+
+                <strong>
+                    {{ event['Title'] }}
+                </strong>
+
+                <small>
+                    {{ event['Message'] }}
+                </small>
+
+            </span>
+
+            <time>
+                {{ event['Date'] }}
+            </time>
+
+        </a>
+
+        {% else %}
+
+        <p class="empty">
+            Your task activity will appear here.
+        </p>
+
+        {% endfor %}
+
+    </section>
+
+</div>
+
+
+
+<!-- RECENT ASSIGNED TASKS -->
+
+<section class="panel section-gap">
+
+    <div class="panel-heading panel-heading-row">
+
+        <div>
+            <h2>Assigned tasks</h2>
+
+            <p>
+                Your latest tasks and their current status.
+            </p>
+        </div>
+
+        <a class="text-link"
+           href="{{ url_for('employee', section='tasks') }}">
+            All tasks →
+        </a>
+
+    </div>
+
+
+    <div class="table-scroll">
+
+        <table class="clean-table">
+
+            <thead>
+                <tr>
+                    <th>Task</th>
+                    <th>Deadline</th>
+                    <th>Sprint</th>
+                    <th>Status</th>
+                    <th>History</th>
+                </tr>
+            </thead>
+
+
+            <tbody>
+
+                {% for task in tasks[-6:]|reverse %}
+
+                <tr>
+
+                    <td>
+                        <strong>
+                            #{{ task['ID'] }}
+                            ·
+                            {{ task['Title'] }}
+                        </strong>
+                    </td>
+
+                    <td class="{% if task['Overdue'] %}overdue{% endif %}">
+                        {{ task['Deadline'] }}
+                    </td>
+
+                    <td>
+                        {{ task['Sprint'] or '—' }}
+                    </td>
+
+                    <td>
+
+                        <span class="badge status-{{ task['Status']|lower|replace(' ', '-') }}">
+                            {{ task['Status'] }}
+                        </span>
+
+                    </td>
+
+                    <td>
+
+                        <a class="text-link"
+                           href="{{ url_for('employee', section='history', task_id=task['ID']) }}">
+                            View →
+                        </a>
+
+                    </td>
+
+                </tr>
+
+                {% else %}
+
+                <tr>
+                    <td colspan="5">
+                        No tasks assigned to you yet.
+                    </td>
+                </tr>
+
+                {% endfor %}
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+</section>
+
+{% endif %}
+
+
+
+<!-- ==========================================
+     2. MY TASKS
+========================================== -->
+
+{% if section == 'tasks' %}
+
+<div class="page-heading">
+
+    <div>
+        <span class="eyebrow">TASK MANAGEMENT</span>
+
+        <h1>My tasks</h1>
+
+        <p>
+            View your work, update task status, and submit completed work for review.
+        </p>
+    </div>
+
+    <span class="tag">
+        {{ tasks|length }} Tasks
+    </span>
+
+</div>
+
+
+
+<!-- BOARD AND LIST CONTROLS -->
+
+<div class="section-tools">
+
+    <div class="view-toggle">
+
+        <a
+            class="{% if view == 'board' %}selected{% endif %}"
+            href="{{ url_for('employee', section='tasks', view='board') }}">
+
+            Board
+
+        </a>
+
+        <a
+            class="{% if view == 'list' %}selected{% endif %}"
+            href="{{ url_for('employee', section='tasks', view='list') }}">
+
+            List
+
+        </a>
+
+    </div>
+
+
+    <input
+        class="input search"
+        type="search"
+        placeholder="Search tasks..."
+        data-task-search
+        aria-label="Search tasks"
+    >
+
+</div>
+
+
+
+<!-- STATUS INFORMATION -->
+
+<p class="tip">
+
+    <strong>Task workflow:</strong>
+
+    To Do → In Progress → Review → Completed.
+
+    Only the owner can approve a task as Completed.
+
+</p>
+
+
+
+<!-- ==========================================
+     2A. BOARD VIEW
+========================================== -->
+
+{% if view == 'board' %}
+
+<div class="kanban" id="task-board">
+
+    {% for status in statuses %}
+
+    <section class="kanban-column"
+             data-drop-status="{{ status }}">
+
+
+        <!-- COLUMN HEADING -->
+
+        <div class="column-title">
+
+            <span class="dot {{ status|lower|replace(' ', '-') }}"></span>
+
+            <b>{{ status }}</b>
+
+            <span>
+                {{ counts[status] }}
+            </span>
+
+        </div>
+
+
+
+        <!-- TASK CARDS -->
+
+        {% for task in tasks if task['Status'] == status %}
+
+        <article
+            class="task-card"
+
+            data-search-item="{{ (task['Title'] ~ ' ' ~ task['Description'] ~ ' ' ~ task['Sprint'])|lower }}"
+
+            {% if status not in ['Review', 'Completed'] %}
+
+            draggable="true"
+
+            data-drag-task="{{ task['ID'] }}"
+
+            data-current-status="{{ status }}"
+
+            {% endif %}
+        >
+
+
+            <!-- TASK DETAILS -->
+
+            <div class="task-meta">
+
+                <span>
+                    #{{ task['ID'] }}
+                </span>
+
+                <span class="{% if task['Overdue'] %}overdue{% endif %}">
+                    {{ task['Deadline'] }}
+                </span>
+
+            </div>
+
+
+            <h3>
+                {{ task['Title'] }}
+            </h3>
+
+
+            <p class="task-description">
+                {{ task['Description'] }}
+            </p>
+
+
+
+            <!-- SPRINT INFORMATION -->
+
+            {% if task['Sprint'] %}
+
+            <span class="sprint-label">
+                {{ task['Sprint'] }}
+            </span>
+
+            {% endif %}
+
+
+
+            <!-- BLOCKER INFORMATION -->
+
+            {% if task['Blocker'] %}
+
+            <p class="note warning">
+
+                <strong>Blocker:</strong>
+
+                {{ task['Blocker'] }}
+
+            </p>
+
+            {% endif %}
+
+
+
+            <!-- OWNER FEEDBACK -->
+
+            {% if task['Review Note'] and task['Review Note'] != 'Approved' %}
+
+            <p class="note">
+
+                <strong>Owner feedback:</strong>
+
+                {{ task['Review Note'] }}
+
+            </p>
+
+            {% endif %}
+
+
+
+            <!-- LOCKED TASKS -->
+
+            {% if status in ['Review', 'Completed'] %}
+
+            <p class="status-notice {% if status == 'Completed' %}approved{% endif %}">
+
+                {% if status == 'Completed' %}
+
+                    Approved by owner
+
+                {% else %}
+
+                    Waiting for owner review
+
+                {% endif %}
+
+            </p>
+
+
+
+            <!-- EMPLOYEE STATUS UPDATE -->
+
+            {% else %}
+
+            <p class="drag-hint">
+                Drag this card to another status column.
+            </p>
+
+
+            <form
+                class="status-form"
+                method="POST"
+                action="{{ url_for('update_status') }}">
+
+
+                <input
+                    type="hidden"
+                    name="task_id"
+                    value="{{ task['ID'] }}"
+                >
+
+
+
+                <!-- STATUS -->
+
+                <label>
+                    Update status
+
+                    <select
+                        class="input status-select"
+                        name="status">
+
+
+                        <option
+                            value="To Do"
+                            {% if status == 'To Do' %}selected{% endif %}>
+
+                            To Do
+
+                        </option>
+
+
+                        <option
+                            value="In Progress"
+                            {% if status == 'In Progress' %}selected{% endif %}>
+
+                            In Progress
+
+                        </option>
+
+
+                        <option
+                            value="Blocker"
+                            {% if status == 'Blocker' %}selected{% endif %}>
+
+                            Blocker
+
+                        </option>
+
+
+                        <option value="Review">
+
+                            Submit for Review
+
+                        </option>
+
+                    </select>
+
+                </label>
+
+
+
+                <!-- BLOCKER REASON -->
+
+                <label class="blocker-field"
+                       {% if status != 'Blocker' %}hidden{% endif %}>
+
+                    Blocker reason
+
+                    <textarea
+                        class="input"
+                        name="blocker"
+                        rows="2"
+                        placeholder="Explain what is blocking your task">{{ task['Blocker'] }}</textarea>
+
+                </label>
+
+
+
+                <!-- SAVE BUTTON -->
+
+                <button
+                    class="btn secondary small"
+                    type="submit">
+
+                    Save status
+
+                </button>
+
+            </form>
+
+            {% endif %}
+
+
+
+            <!-- TASK HISTORY LINK -->
+
+            <a class="history-link"
+               href="{{ url_for('employee', section='history', task_id=task['ID']) }}">
+
+                View task history →
+
+            </a>
+
+        </article>
+
+
+        {% else %}
+
+        <p class="empty-column">
+            No tasks
+        </p>
+
+        {% endfor %}
+
+    </section>
+
+    {% endfor %}
+
+</div>
+
+
+
+<!-- ==========================================
+     2B. LIST VIEW
+========================================== -->
+
+{% else %}
+
+<section class="panel">
+
+    <div class="table-scroll">
+
+        <table class="clean-table">
+
+            <thead>
+
+                <tr>
+                    <th>Task</th>
+                    <th>Deadline</th>
+                    <th>Sprint</th>
+                    <th>Status / Action</th>
+                    <th>History</th>
+                </tr>
+
+            </thead>
+
+
+            <tbody>
+
+                {% for task in tasks %}
+
+                <tr data-search-item="{{ (task['Title'] ~ ' ' ~ task['Description'])|lower }}">
+
+
+                    <!-- TASK NAME -->
+
+                    <td>
+
+                        <strong>
+                            #{{ task['ID'] }} · {{ task['Title'] }}
+                        </strong>
+
+                        <small>
+                            {{ task['Description'] }}
+                        </small>
+
+                    </td>
+
+
+
+                    <!-- DEADLINE -->
+
+                    <td class="{% if task['Overdue'] %}overdue{% endif %}">
+
+                        {{ task['Deadline'] }}
+
+                    </td>
+
+
+
+                    <!-- SPRINT -->
+
+                    <td>
+
+                        {{ task['Sprint'] or '—' }}
+
+                    </td>
+
+
+
+                    <!-- STATUS UPDATE -->
+
+                    <td>
+
+                        {% if task['Status'] in ['Review', 'Completed'] %}
+
+                        <span class="badge status-{{ task['Status']|lower|replace(' ', '-') }}">
+
+                            {{ task['Status'] }}
+
+                        </span>
+
+
+                        {% else %}
+
+
+                        <form
+                            class="status-form compact"
+                            method="POST"
+                            action="{{ url_for('update_status') }}">
+
+
+                            <input
+                                type="hidden"
+                                name="task_id"
+                                value="{{ task['ID'] }}"
+                            >
+
+
+
+                            <select
+                                class="input status-select"
+                                name="status"
+                                aria-label="Update task status">
+
+
+                                <option
+                                    value="To Do"
+                                    {% if task['Status'] == 'To Do' %}selected{% endif %}>
+
+                                    To Do
+
+                                </option>
+
+
+                                <option
+                                    value="In Progress"
+                                    {% if task['Status'] == 'In Progress' %}selected{% endif %}>
+
+                                    In Progress
+
+                                </option>
+
+
+                                <option
+                                    value="Blocker"
+                                    {% if task['Status'] == 'Blocker' %}selected{% endif %}>
+
+                                    Blocker
+
+                                </option>
+
+
+                                <option value="Review">
+
+                                    Submit for Review
+
+                                </option>
+
+                            </select>
+
+
+
+                            <!-- BLOCKER REASON -->
+
+                            <label class="blocker-field"
+                                   {% if task['Status'] != 'Blocker' %}hidden{% endif %}>
+
+                                Blocker reason
+
+                                <textarea
+                                    class="input"
+                                    name="blocker"
+                                    rows="2">{{ task['Blocker'] }}</textarea>
+
+                            </label>
+
+
+
+                            <button
+                                class="btn secondary small"
+                                type="submit">
+
+                                Save
+
+                            </button>
+
+                        </form>
+
+                        {% endif %}
+
+                    </td>
+
+
+
+                    <!-- HISTORY -->
+
+                    <td>
+
+                        <a class="text-link"
+                           href="{{ url_for('employee', section='history', task_id=task['ID']) }}">
+
+                            View →
+
+                        </a>
+
+                    </td>
+
+                </tr>
+
+
+                {% else %}
+
+                <tr>
+                    <td colspan="5">
+                        No tasks have been assigned to you yet.
+                    </td>
+                </tr>
+
+                {% endfor %}
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+</section>
+
+{% endif %}
+
+{% endif %}
+
+
+
+<!-- ==========================================
+     3. MY SPRINTS
+========================================== -->
+
+{% if section == 'sprints' %}
+
+<div class="page-heading">
+
+    <div>
+        <span class="eyebrow">SPRINT MANAGEMENT</span>
+
+        <h1>My sprints</h1>
+
+        <p>
+            View your assigned sprint tasks and completed work.
+        </p>
+    </div>
+
+    <span class="tag">
+        {{ sprints|length }} Sprints
+    </span>
+
+</div>
+
+
+
+<!-- SPRINT CARDS -->
+
+<div class="card-grid">
+
+    {% for item in sprints %}
+
+    <section class="panel sprint-card">
+
+
+        <!-- SPRINT DETAILS -->
+
+        <div class="sprint-head">
+
+            <div>
+
+                <h2>
+                    {{ item['Name'] }}
+                </h2>
+
+                <p>
+
+                    {{ item['Start Date'] }}
+
+                    —
+
+                    {{ item['End Date'] }}
+
+                </p>
+
+            </div>
+
+
+            <span class="tag">
+
+                {{ item['Active']|length }} Active
+
+                ·
+
+                {{ item['Completed']|length }} Completed
+
+            </span>
+
+        </div>
+
+
+
+        <!-- ACTIVE TASKS -->
+
+        <h3>
+            Active tasks
+        </h3>
+
+
+        {% for task in item['Active'] %}
+
+        <div class="list-line">
+
+            <div>
+
+                <strong>
+                    {{ task['Title'] }}
+                </strong>
+
+                <small>
+
+                    Due {{ task['Deadline'] }}
+
+                    ·
+
+                    {{ task['Status'] }}
+
+                </small>
+
+            </div>
+
+
+            <a class="text-link"
+               href="{{ url_for('employee', section='history', task_id=task['ID']) }}">
+
+                History →
+
+            </a>
+
+        </div>
+
+
+        {% else %}
+
+        <p class="empty">
+            No active tasks in this sprint.
+        </p>
+
+        {% endfor %}
+
+
+
+        <!-- COMPLETED TASKS -->
+
+        <h3>
+            Completed tasks
+        </h3>
+
+
+        {% for task in item['Completed'] %}
+
+        <div class="list-line">
+
+            <div>
+
+                <strong>
+                    {{ task['Title'] }}
+                </strong>
+
+                <small>
+                    Approved by owner
+                </small>
+
+            </div>
+
+
+            <a class="text-link"
+               href="{{ url_for('employee', section='history', task_id=task['ID']) }}">
+
+                History →
+
+            </a>
+
+        </div>
+
+
+        {% else %}
+
+        <p class="empty">
+            No completed tasks yet.
+        </p>
+
+        {% endfor %}
+
+    </section>
+
+
+    {% else %}
+
+    <section class="panel">
+
+        <p class="empty">
+            No sprint tasks have been assigned to you yet.
+        </p>
+
+    </section>
+
+    {% endfor %}
+
+</div>
+
+{% endif %}
+
+
+
+<!-- ==========================================
+     4. TASK HISTORY
+========================================== -->
+
+{% if section == 'history' %}
+
+    {% include 'history_panel.html' %}
+
+{% endif %}
+
+
+{% endblock %}

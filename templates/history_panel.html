@@ -1,0 +1,252 @@
+<!-- ==========================================
+     TASK HISTORY
+========================================== -->
+
+<div class="page-heading">
+
+    <div>
+        <span class="eyebrow">TASK ACTIVITY</span>
+
+        <h1>Task History</h1>
+
+        <p>
+            View task creation, assignments, status changes,
+            reviews, and completed work.
+        </p>
+    </div>
+
+    <span class="tag">
+        Activity Log
+    </span>
+
+</div>
+
+
+<!-- ==========================================
+     HISTORY FILTER
+========================================== -->
+
+{% if history_tasks is defined %}
+
+    {% set available_tasks = history_tasks %}
+
+{% elif role == 'Owner' %}
+
+    {% set available_tasks = all_tasks %}
+
+{% else %}
+
+    {% set available_tasks = tasks %}
+
+{% endif %}
+
+
+{% set selected_id = request.args.get('task_id', '') %}
+
+
+<section class="panel history-panel">
+
+    <form
+        method="GET"
+        action="{{ url_for('owner' if role == 'Owner' else 'employee') }}"
+        class="history-filter">
+
+        <input
+            type="hidden"
+            name="section"
+            value="history">
+
+
+        <label for="history-task-filter">
+            Select Task
+        </label>
+
+
+        <select
+            class="input"
+            id="history-task-filter"
+            name="task_id"
+            onchange="this.form.submit()">
+
+            <option value="">
+                All Tasks
+            </option>
+
+
+            {% for task in available_tasks %}
+
+            <option
+                value="{{ task['ID'] }}"
+                {% if selected_id == task['ID']|string %}
+                    selected
+                {% endif %}>
+
+                #{{ task['ID'] }} — {{ task['Title'] }}
+
+            </option>
+
+            {% endfor %}
+
+        </select>
+
+    </form>
+
+
+
+    <!-- ==========================================
+         SAVED HISTORY EVENTS
+    ========================================== -->
+
+    <div class="activity-list">
+
+
+        {% if history is defined and history %}
+
+
+            <!-- HISTORY FROM FLASK -->
+
+            {% for event in history %}
+
+            <article class="activity-item">
+
+                <span class="activity-marker"></span>
+
+
+                <div class="activity-content">
+
+
+                    <div class="activity-topline">
+
+                        <strong>
+                            {{ event['Title'] }}
+                        </strong>
+
+                        <span class="activity-id">
+                            #{{ event['Task ID'] }}
+                        </span>
+
+                    </div>
+
+
+                    <p class="activity-message">
+                        {{ event['Message'] }}
+                    </p>
+
+
+                    <div class="activity-meta">
+
+                        <time>
+                            {{ event['Date'] }}
+                        </time>
+
+
+                        {% if role == 'Owner' %}
+
+                        <span>
+                            {{ event['Person'] }}
+                        </span>
+
+                        {% endif %}
+
+                    </div>
+
+                </div>
+
+            </article>
+
+            {% endfor %}
+
+
+
+        {% else %}
+
+
+            <!-- FALLBACK: READ HISTORY DIRECTLY FROM TASKS -->
+
+            {% set tracker = namespace(found=false) %}
+
+
+            {% for task in available_tasks %}
+
+                {% if not selected_id or selected_id == task['ID']|string %}
+
+
+                    {% for entry in task['History']|default([])|reverse %}
+
+                    {% set tracker.found = true %}
+
+                    <article class="activity-item">
+
+                        <span class="activity-marker"></span>
+
+
+                        <div class="activity-content">
+
+
+                            <div class="activity-topline">
+
+                                <strong>
+                                    {{ task['Title'] }}
+                                </strong>
+
+                                <span class="activity-id">
+                                    #{{ task['ID'] }}
+                                </span>
+
+                            </div>
+
+
+                            <p class="activity-message">
+                                {{ entry }}
+                            </p>
+
+
+                            <div class="activity-meta">
+
+                                <span>
+                                    Status: {{ task['Status'] }}
+                                </span>
+
+
+                                {% if role == 'Owner' %}
+
+                                <span>
+                                    {{ task['Person'] }}
+                                </span>
+
+                                {% endif %}
+
+                            </div>
+
+                        </div>
+
+                    </article>
+
+                    {% endfor %}
+
+                {% endif %}
+
+            {% endfor %}
+
+
+
+            {% if not tracker.found %}
+
+            <div class="empty-state">
+
+                <h3>No history available</h3>
+
+                <p>
+                    Task updates will appear here once
+                    they have been recorded.
+                </p>
+
+            </div>
+
+            {% endif %}
+
+        {% endif %}
+
+    </div>
+
+</section>
