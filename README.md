@@ -1,4 +1,4 @@
-# Task Management System
+# TASK MANAGEMENT WEBSITE
 
 A web-based **Task Management System** developed using Python, Flask, HTML, CSS, and JavaScript. The application provides a centralized workspace for managing employees, assigning tasks, tracking work status, organizing sprints, and reviewing completed tasks.
 
