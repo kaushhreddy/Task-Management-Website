@@ -1,53 +1,245 @@
-# VAAYUM SPACE — Simple Python Backend
+# Task Management System
 
-This is the **backend-only**, beginner-friendly version of Vaayum Space. It follows the same modular Python style as the Helpdesk Ticket Management System.
+A web-based **Task Management System** developed using Python, Flask, HTML, CSS, and JavaScript. The application provides a centralized workspace for managing employees, assigning tasks, tracking work status, organizing sprints, and reviewing completed tasks.
 
-## Run
+The project features a professional dark-themed interface with separate dashboards for Owners and Employees.
 
-1. Open the `Vaayum_Space` folder in VS Code.
-2. Open **Terminal → New Terminal**.
-3. Run `python main.py` (or `py main.py` on Windows if needed).
-4. On the first run, enter the owner's name, email and a password of at least 8 characters.
-5. Choose **Owner Login** and enter those same credentials.
-6. As the owner, add your employees, then create and assign tasks.
-7. Choose **Logout**, then **Employee Login** with an employee's email/password to work on their tasks.
+## Project Overview
 
-No `pip install` is necessary: this project uses Python's built-in modules only.
+The Task Management System is designed to simplify task coordination and work tracking within a team.
 
-## Workflow
+Owners can create and assign tasks, manage employees, set deadlines, organize sprints, and review submitted work. Employees can view their assigned tasks, update their progress, report blockers, and submit tasks for approval.
 
-- **Owner**: log in → add employees → create tasks with deadlines → assign tasks to registered employees → monitor progress and blockers → approve or request changes.
-- **Employee**: log in → view only assigned tasks → change status between To Do, In Progress, Blocker and Review → see feedback → wait for owner approval before Completed.
+The system maintains task records and activity history using CSV files for persistent storage.
 
-`tasks.csv` saves task records; `employees.csv` saves owner and employee accounts. These files are created automatically if missing.
+## Key Features
 
-## Structure
+### 1. Role-Based Authentication
+- Separate login options for Owners and Employees.
+- Email and password authentication.
+- Passwords stored using secure hashing.
+- Session-based login and logout.
+- Role-based dashboard access.
 
-```
+### 2. Owner Dashboard
+- Workspace overview with task and employee statistics.
+- View registered employees and their designations.
+- Create and assign tasks to employees.
+- Set task descriptions and deadlines.
+- Create and manage sprints.
+- Monitor task statuses.
+- Review employee submissions.
+- Approve completed tasks or request changes.
+- View reported blockers.
+- Access task history and recent activity.
+
+### 3. Employee Dashboard
+- Personalized workspace for each employee.
+- View individually assigned tasks.
+- Track task deadlines and sprint assignments.
+- Update task status.
+- Drag and drop task cards between status columns.
+- Report blockers with reasons.
+- Submit completed work for owner review.
+- View review feedback.
+- Access task history.
+
+### 4. Task Management
+
+Tasks move through the following workflow:
+
+**To Do → In Progress → Review → Completed**
+
+Employees can also move a task into **Blocker** when they encounter an issue.
+
+Only the Owner can approve tasks and mark them as Completed.
+
+### 5. Sprint Management
+- Create sprints with start and end dates.
+- Assign tasks to sprints.
+- View active sprint tasks.
+- Track completed sprint tasks.
+- Maintain completed task records.
+
+### 6. Task History
+- Records task creation and assignments.
+- Tracks status changes.
+- Maintains blocker information.
+- Stores review feedback and approvals.
+- Provides task-specific activity history.
+
+### 7. User Interface
+- Professional dark-themed design.
+- Responsive dashboard layout.
+- Clean navigation and readable typography.
+- Task board and list views.
+- Interactive task cards.
+- Search and filtering options.
+
+## Technologies Used
+
+| Technology | Purpose |
+|---|---|
+| Python | Backend programming |
+| Flask | Web application framework |
+| HTML5 | Webpage structure |
+| CSS3 | Styling and responsive design |
+| JavaScript | Frontend interactions |
+| CSV | Data storage |
+| Git | Version control |
+| GitHub | Source code hosting |
+
+## Project Structure
+
+```text
 Vaayum_Space/
-├── main.py         # Start program, owner menu, employee menu
-├── accounts.py     # Create owner account, employee accounts, logins
-├── task.py         # Task list and new task IDs
-├── storage.py      # Read/write two CSV files
-├── create_task.py  # Create tasks and deadlines
-├── assign_task.py  # Assign tasks by registered employee email
-├── view_tasks.py   # Lists, blockers, team/employee progress
-├── update_task.py # Employee changes task status
-├── review_task.py # Owner approves or requests changes
-├── tasks.csv       # Stored tasks, initially empty
-└── employees.csv   # Stored accounts, initially empty
+│
+├── app.py
+├── README.md
+├── .gitignore
+│
+├── backend/
+│   ├── accounts.py
+│   ├── assign_task.py
+│   ├── create_task.py
+│   ├── main.py
+│   ├── review_task.py
+│   ├── sprint.py
+│   ├── storage.py
+│   ├── task.py
+│   ├── update_task.py
+│   └── view_tasks.py
+│
+├── templates/
+│   ├── base.html
+│   ├── login.html
+│   ├── owner_dashboard.html
+│   ├── employee_dashboard.html
+│   └── history_panel.html
+│
+├── static/
+│   ├── style.css
+│   ├── app.js
+│   └── vaayum_logo_white.png
+│
+└── storage/
+    └── .gitkeep
 ```
 
-## Task statuses
+**Note:** Local CSV files containing employee accounts, task records, and sprint information are excluded from the public repository.
 
-`To Do → In Progress → Review → Completed`
+## Installation and Setup
 
-An employee can choose `Blocker` when stuck, provide a reason, and move back to `In Progress` when work resumes. An owner can send a reviewed task back to `In Progress` with feedback.
+### Step 1: Clone the repository
 
-## Important notes
+```bash
+git clone https://github.com/kaushhreddy/Task-Management-System.git
+```
 
-- This is a **local, single-computer learning application**, not a production web service. It uses password hashes instead of plain-text passwords, but CSV files do not provide production-grade access controls, auditing or concurrent editing.
-- **Sprints, graphs, and the browser interface are intentionally not included** because the current step is backend only.
-- This version assigns work by **employee email address** instead of just a name. If you already have an older `tasks.csv`, back it up; old name-based assignments may need to be reassigned through the owner menu.
-- Keep `employees.csv` private. It contains hashed passwords and account information.
-- The program expects to be run from inside the `Vaayum_Space` folder.
+### Step 2: Open the project folder
+
+```bash
+cd Task-Management-System
+```
+
+### Step 3: Install Flask
+
+```bash
+pip install flask
+```
+
+### Step 4: Initialize local data
+
+The application uses CSV files for storing employee accounts, tasks, and sprint information.
+
+The required local CSV files are:
+
+```text
+storage/
+├── employees.csv
+├── tasks.csv
+├── sprints.csv
+└── sprint_tasks.csv
+```
+
+These files are not included in the public repository.
+
+Use the backend's account and task management functions to initialize the required data and create login accounts before starting the website.
+
+### Step 5: Run the application
+
+```bash
+python app.py
+```
+
+### Step 6: Open the website
+
+Visit:
+
+```text
+http://127.0.0.1:5000
+```
+
+Sign in using a locally registered Owner or Employee account.
+
+## Application Workflow
+
+**Owner**
+
+Login → Dashboard → Employees → Create Task → Assign Employee → Set Deadline / Sprint → Review Task → Approve Completion
+
+**Employee**
+
+Login → Dashboard → My Tasks → Update Status → Report Blocker (if required) → Submit for Review → View Feedback / Completion
+
+## Data Storage
+
+The project uses CSV-based storage to keep the implementation simple and beginner-friendly.
+
+- `employees.csv` — Employee details and login credentials stored as password hashes.
+- `tasks.csv` — Task details, assignments, statuses, blockers, and history.
+- `sprints.csv` — Sprint information.
+- `sprint_tasks.csv` — Task-to-sprint assignments.
+
+Data remains available after the application is closed and restarted.
+
+## Project Objectives
+
+- Simplify task assignment and tracking.
+- Provide separate workspaces for Owners and Employees.
+- Improve visibility into task statuses and deadlines.
+- Support sprint-based task organization.
+- Maintain task history for reference.
+- Build a functional web application using beginner-friendly technologies.
+
+## Future Enhancements
+
+Potential improvements include:
+
+- Database integration using SQLite or MySQL.
+- Individual password management.
+- Email notifications for task assignments.
+- File attachments for tasks.
+- Task priorities and advanced filtering.
+- Multiple projects and workspaces.
+- Cloud deployment.
+- Real-time collaboration features.
+
+## Project Information
+
+**Project Name:** Task Management System  
+**Application Name:** Vaayum Space  
+**Project Type:** Personal Demonstration Project  
+**Backend:** Python, Flask  
+**Frontend:** HTML, CSS, JavaScript  
+**Storage:** CSV  
+
+## Author
+
+**Kaushik Reddy**
+
+GitHub: [kaushhreddy](https://github.com/kaushhreddy)
+
+---
+
+*This project was developed for learning and demonstration purposes.*
